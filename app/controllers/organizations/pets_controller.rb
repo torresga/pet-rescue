@@ -1,5 +1,6 @@
 class Organizations::PetsController < Organizations::BaseController
   before_action :verified_staff
+  before_action :set_pet, only: [:show, :edit, :update, :update_images, :set_reason_paused_to_none]
   after_action :set_reason_paused_to_none, only: [:update]
   layout "dashboard"
 
@@ -14,7 +15,6 @@ class Organizations::PetsController < Organizations::BaseController
   end
 
   def edit
-    @pet = Pet.find(params[:id])
     return if pet_in_same_organization?(@pet.organization_id)
 
     redirect_to pets_path, alert: "This pet is not in your organization."
@@ -22,7 +22,6 @@ class Organizations::PetsController < Organizations::BaseController
 
   def show
     @active_tab = ["overview", "tasks", "applications", "files"].include?(params[:active_tab]) ? params[:active_tab] : "overview"
-    @pet = Pet.find(params[:id])
     @pause_reason = @pet.pause_reason
     return if pet_in_same_organization?(@pet.organization_id)
 
@@ -40,8 +39,6 @@ class Organizations::PetsController < Organizations::BaseController
   end
 
   def update
-    @pet = Pet.find(params[:id])
-
     if pet_in_same_organization?(@pet.organization_id) && @pet.update(pet_params)
       redirect_to @pet, notice: "Pet updated successfully."
     else
@@ -49,9 +46,17 @@ class Organizations::PetsController < Organizations::BaseController
     end
   end
 
-  def destroy
-    @pet = Pet.find(params[:id])
+  def update_images
+    if pet_in_same_organization?(@pet.organization_id) && @pet.images.attach(params[:append_images])
+      redirect_to @pet, notice: "Pet updated successfully."
+    else
+      @active_tab = "files"
+      @pet.images.last.purge
+      render :show, status: :unprocessable_entity
+    end
+  end
 
+  def destroy
     if pet_in_same_organization?(@pet.organization_id) && @pet.destroy
       redirect_to pets_path, notice: "Pet deleted.", status: :see_other
     else
@@ -76,6 +81,10 @@ class Organizations::PetsController < Organizations::BaseController
       append_images: [])
   end
 
+  def set_pet
+    @pet = Pet.find(params[:id])
+  end
+
   def selected_pet
     return if !params[:pet_id] || params[:pet_id] == ""
 
@@ -84,8 +93,6 @@ class Organizations::PetsController < Organizations::BaseController
 
   # update Pet pause_reason to not paused if applications resumed
   def set_reason_paused_to_none
-    pet = Pet.find(params[:id])
-
     return unless pet.application_paused == false
 
     pet.pause_reason = 0
