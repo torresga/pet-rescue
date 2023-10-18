@@ -1,5 +1,6 @@
 class Organizations::PetsController < Organizations::BaseController
   before_action :verified_staff
+  before_action :set_pet, only: [:show, :edit, :update, :update_images, :set_reason_paused_to_none]
   after_action :set_reason_paused_to_none, only: [:update]
   layout "dashboard"
 
@@ -14,7 +15,6 @@ class Organizations::PetsController < Organizations::BaseController
   end
 
   def edit
-    @pet = Pet.find(params[:id])
     return if pet_in_same_organization?(@pet.organization_id)
 
     redirect_to pets_path, alert: "This pet is not in your organization."
@@ -22,7 +22,6 @@ class Organizations::PetsController < Organizations::BaseController
 
   def show
     @active_tab = ["overview", "tasks", "applications", "files"].include?(params[:active_tab]) ? params[:active_tab] : "overview"
-    @pet = Pet.find(params[:id])
     @pause_reason = @pet.pause_reason
     return if pet_in_same_organization?(@pet.organization_id)
 
@@ -40,8 +39,6 @@ class Organizations::PetsController < Organizations::BaseController
   end
 
   def update
-    @pet = Pet.find(params[:id])
-
     if pet_in_same_organization?(@pet.organization_id) && @pet.update(pet_params)
       redirect_to @pet, notice: "Pet updated successfully."
     else
@@ -50,23 +47,18 @@ class Organizations::PetsController < Organizations::BaseController
   end
 
   def update_images
-    @pet = Pet.find(params[:id])
     @pet.append_images = params[:append_images]
 
     if @pet.save
-      redirect_to @pet, notice: "Pet updated successfully."
+      @active_tab = "files"
+      redirect_to :show, notice: "Pet image updated successfully."
     else
-      # byebug
-      # render partial: "nice_partials/files", locals: { pet: @pet }, status: :unprocessable_entity
-      flash[:error]
-      p flash[:error]
-      render :new, status: :unprocessable_entity
+      @active_tab = "files"
+      render :show, status: :unprocessable_entity
     end
   end
 
   def destroy
-    @pet = Pet.find(params[:id])
-
     if pet_in_same_organization?(@pet.organization_id) && @pet.destroy
       redirect_to pets_path, notice: "Pet deleted.", status: :see_other
     else
@@ -91,6 +83,10 @@ class Organizations::PetsController < Organizations::BaseController
       append_images: [])
   end
 
+  def set_pet
+    @pet = Pet.find(params[:id])
+  end
+
   def selected_pet
     return if !params[:pet_id] || params[:pet_id] == ""
 
@@ -99,8 +95,6 @@ class Organizations::PetsController < Organizations::BaseController
 
   # update Pet pause_reason to not paused if applications resumed
   def set_reason_paused_to_none
-    pet = Pet.find(params[:id])
-
     return unless pet.application_paused == false
 
     pet.pause_reason = 0
