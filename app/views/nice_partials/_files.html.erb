@@ -1,0 +1,29 @@
+<%= bootstrap_form_with url: update_images_pet_path do |form| %>
+  <div class='form-group mt-3'>
+    <%= form.file_field :append_images, multiple: true,
+                        class: "custom-attachments",
+                        label: 'Attach images' %>
+    <% p @pet.errors %>
+    <%= @pet.errors.full_messages_for(:images) %>
+    <% @pet.errors.full_messages_for(:images).each do |message| %>
+      <div class="alert alert-danger mt-1" role="alert"><%= message %></div>
+    <% end %>
+  </div>
+  
+  <%= form.submit t('general.save'), class: 'btn btn-outline-dark mb-3 mt-4' %>
+<% end %>
+
+<% if @pet.images.attached? %>
+  <% @pet.images.each do |image| %>
+    <div class="card mb-4">
+      <div class="card-body">
+        <p><%= image.filename %>
+        <%= image_tag image, style: 'width:100%;' %>
+        <%# <%= link_to t('general.delete'), %> %>
+                              <%# purge_attachment_path(image),
+                              data: { turbo_method: "delete" },
+                              class: 'delete-button' %>
+      </div>
+    </div>
+  <% end %>
+<% end %>
