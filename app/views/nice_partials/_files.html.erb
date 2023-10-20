@@ -19,7 +19,8 @@
   <% @pet.images.each do |image| %>
     <div class="card mb-4">
       <div class="card-body">
-        <p><%= image.filename %>
+        <p><%= image.filename %></p>
+        <p><%= image.id %>
         <%= image_tag image, style: 'width:100%;' %>
         <%= link_to t('general.delete'),
                               purge_attachment_path(image),

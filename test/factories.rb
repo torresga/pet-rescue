@@ -139,9 +139,10 @@ FactoryBot.define do
     end
   end
 
-  factory :image do
-    image { Rack::Test::UploadedFile.new(Rails.root.join('test', 'fixtures', 'files', 'buster1.jpg'), 'image/jpeg') }
-  end
+  # factory :image do
+  #   pet { create(:pet, organization: organization) }
+  #   image { Rack::Test::UploadedFile.new(Rails.root.join('test', 'fixtures', 'files', 'buster1.jpg'), 'image/jpeg') }
+  # end
 
   factory :match do
     organization
