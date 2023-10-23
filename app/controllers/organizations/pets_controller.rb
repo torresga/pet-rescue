@@ -47,15 +47,12 @@ class Organizations::PetsController < Organizations::BaseController
   end
 
   def update_images
-    @pet.append_images = params[:append_images]
-   
-    if @pet.save
-      @active_tab = "files"
-      # redirect_to :show, notice: "Pet image updated successfully."
+    if pet_in_same_organization?(@pet.organization_id) && @pet.images.attach(params[:append_images])
       redirect_to @pet, notice: "Pet updated successfully."
     else
       @active_tab = "files"
-      render :show, status: :unprocessable_entity, locals: { pet: @pet }
+      @pet.images.last.purge
+      render :show, status: :unprocessable_entity
     end
   end
 
