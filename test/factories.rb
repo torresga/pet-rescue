@@ -1,4 +1,11 @@
 FactoryBot.define do
+  factory :task do
+    name { "MyString" }
+    description { "MyText" }
+    completed { false }
+    pet { nil }
+  end
+
   factory :adopter_account do
     user
 
@@ -174,6 +181,8 @@ FactoryBot.define do
     first_name { Faker::Name.first_name }
     last_name { Faker::Name.last_name }
     tos_agreement { true }
+
+    organization
 
     trait :verified_staff do
       staff_account
