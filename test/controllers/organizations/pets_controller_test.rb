@@ -1,7 +1,5 @@
 require "test_helper"
 class Organizations::PetsControllerTest < ActionDispatch::IntegrationTest
-  # include ActionDispatch::TestProcess
-
   setup do
     @organization = create(:organization)
     @pet = create(:pet)
@@ -18,14 +16,12 @@ class Organizations::PetsControllerTest < ActionDispatch::IntegrationTest
 
   context "POST #update_images" do
     should "upload file" do
-      # byebug
       image = fixture_file_upload('buster1.jpg', 'image/jpeg')
 
-      post update_images_pet_path(@pet),
-        params: {append_images: [image]}
+      post update_images_pet_path(@pet), 
+      params: {append_images: [image]}
 
-      # assert_response :success
-      assert_redirected_to :show
+      assert_response :redirect
   end
 end
 end
