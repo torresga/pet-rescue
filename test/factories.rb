@@ -1,4 +1,11 @@
 FactoryBot.define do
+  factory :task do
+    name { "MyString" }
+    description { "MyText" }
+    completed { false }
+    pet { nil }
+  end
+
   factory :adopter_account do
     user
 
@@ -138,6 +145,11 @@ FactoryBot.define do
       end
     end
   end
+
+  # factory :image do
+  #   pet { create(:pet, organization: organization) }
+  #   image { Rack::Test::UploadedFile.new(Rails.root.join('test', 'fixtures', 'files', 'buster1.jpg'), 'image/jpeg') }
+  # end
 
   factory :match do
     organization
